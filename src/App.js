@@ -1,28 +1,39 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import Form from "./Form";
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+export default () => {
+  const [todos, setTodos] = useState([]);
+  const toggleComplete = index =>
+    setTodos(
+      todos.map(
+        (todo, id) =>
+          id === index ? { ...todo, complete: !todo.complete } : todo
+      )
     );
-  }
-}
 
-export default App;
+  useEffect(() => {
+    document.title = `Have ${todos.length} todos`;
+  });
+
+  return (
+    <div className="App">
+      <Form
+        onSubmit={text => setTodos([{ text, complete: false }, ...todos])}
+      />
+      <div>
+        {todos.map(({ text, complete }, index) => (
+          <div
+            key={index}
+            onClick={() => toggleComplete(index)}
+            style={{ textDecoration: complete ? "line-through" : "" }}
+          >
+            {text}
+          </div>
+        ))}
+      </div>
+      <button onClick={() => setTodos([])}>reset</button>
+    </div>
+  );
+};
