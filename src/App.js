@@ -1,39 +1,35 @@
 import React, { useState, useEffect } from "react";
-import logo from "./logo.svg";
+
 import "./App.css";
-import Form from "./Form";
+
+const useFetch = (url, count) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Similar to componentDidMount and componentDidUpdate:
+  useEffect(
+    async () => {
+      const response = await fetch(url);
+      const data = await response.json();
+      const [item] = data.results;
+      setData(item);
+      setLoading(false);
+    },
+    [count]
+  );
+
+  return { data, loading };
+};
 
 export default () => {
-  const [todos, setTodos] = useState([]);
-  const toggleComplete = index =>
-    setTodos(
-      todos.map(
-        (todo, id) =>
-          id === index ? { ...todo, complete: !todo.complete } : todo
-      )
-    );
-
-  useEffect(() => {
-    document.title = `Have ${todos.length} todos`;
-  });
+  const [count, setCount] = useState(0);
+  const { data, loading } = useFetch("https://api.randomuser.me/", count);
 
   return (
-    <div className="App">
-      <Form
-        onSubmit={text => setTodos([{ text, complete: false }, ...todos])}
-      />
-      <div>
-        {todos.map(({ text, complete }, index) => (
-          <div
-            key={index}
-            onClick={() => toggleComplete(index)}
-            style={{ textDecoration: complete ? "line-through" : "" }}
-          >
-            {text}
-          </div>
-        ))}
-      </div>
-      <button onClick={() => setTodos([])}>reset</button>
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>Click me</button>
+      {loading ? <div>...loading</div> : <div>{data.name.first}</div>}
     </div>
   );
 };
