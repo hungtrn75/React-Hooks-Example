@@ -1,25 +1,28 @@
 import React, { useState } from "react";
 
 const useInputValue = initialValue => {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(initialValue);
+
   return {
     value,
     onChange: e => setValue(e.target.value),
-    resetValue: e => setValue("")
+    resetValue: () => setValue("")
   };
 };
 
-export default ({ onSubmit }) => {
+export default React.memo(({ dispatch }) => {
   const { resetValue, ...text } = useInputValue("");
+
+  console.log("<Form /> is rendering...");
   return (
     <form
       onSubmit={e => {
         e.preventDefault();
-        onSubmit(text.value);
+        dispatch({ text: text.value, type: "ADD_TODO" });
         resetValue();
       }}
     >
       <input {...text} />
     </form>
   );
-};
+});
