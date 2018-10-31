@@ -1,22 +1,22 @@
-import React, { useReducer } from "react";
+import React from "react";
+import { produce } from "immer";
 
 import Form from "./Form";
 import "./App.css";
 
+// https://github.com/mweststrate/use-immer/blob/master/index.js
+function useImmerReducer(reducer, initialState) {
+  return React.useReducer(produce(reducer), initialState);
+}
+
 const todosReducer = (todos, action) => {
   switch (action.type) {
     case "ADD_TODO":
-      return [{ text: action.text, complete: false }, ...todos];
+      todos.unshift({ text: action.text, complete: false });
+      return;
     case "TOGGLE_COMPLETE":
-      return todos.map(
-        (todo, k) =>
-          k === action.index
-            ? {
-                ...todo,
-                complete: !todo.complete
-              }
-            : todo
-      );
+      todos[action.index].complete = !todos[action.index].complete;
+      return;
     case "RESET":
       return [];
     default:
@@ -25,7 +25,7 @@ const todosReducer = (todos, action) => {
 };
 
 export default () => {
-  const [todos, dispatch] = useReducer(todosReducer, []);
+  const [todos, dispatch] = useImmerReducer(todosReducer, []);
 
   return (
     <div className="App">
@@ -33,7 +33,7 @@ export default () => {
       <div>
         {todos.map(({ text, complete }, index) => (
           <div
-            key={text}
+            key={index}
             onClick={() => dispatch({ type: "TOGGLE_COMPLETE", index })}
             style={{
               textDecoration: complete ? "line-through" : ""
